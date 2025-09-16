@@ -1,9 +1,35 @@
-const express = require("express");
+
 const { Router } = require("express");
+
+const jwt=require("jsonwebtoken");
+
+const {JWT_ADMIN_PASSWORD}=require("../config")
+const bcrypt=require("bcrypt");
+const zod=require("zod");
 
 const adminRouter = Router();
 
-adminRouter.post("/signup", (req, res) => {
+adminRouter.post("/signup", async (req, res) => {
+    const requireBody=zod.object({
+        email:zod.string().email().min(5),
+        password:zod.string().min(5),
+        firstName:zod.string().min(3),
+        lastName:zod.string().min(3),
+    })
+
+    const parseDataWithSuccess=requireBody.safeParse(req.body);
+
+    if(!parseDataWithSuccess.success){
+        return res.status(400).json({
+            message:"incorrect Data format",
+            error:parseDataWithSuccess.error
+        })
+    }
+
+    const {email,password,firstName,lastName}=req.body;
+
+    const hashedPassword=await bcrypt.hash(password,10);
+
     res.json({ message: "Admin SignUp endpoint" });
 });
 
