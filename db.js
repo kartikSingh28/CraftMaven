@@ -17,7 +17,9 @@ const adminSchema = new Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   firstName: String,
-  lastName: String
+  lastName: String,
+  role: { type: String, default: "admin" },
+  createdAt: { type: Date, default: Date.now }
 });
 
 const buyerSchema = new Schema({
