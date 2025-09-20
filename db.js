@@ -28,7 +28,8 @@ const buyerSchema = new Schema({
   firstName: String,
   lastName: String,
   address: String,
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  purchases:[{type:ObjectId,ref:"purchase"}]
 });
 
 const sellerSchema = new Schema({
@@ -46,12 +47,13 @@ const productSchema = new Schema({
   price: { type: Number, required: true },
   category: String,
   stock: { type: Number, default: 0 },
-  sellerId: { type: ObjectId, ref: "seller", required: true }
+  sellerId: { type: ObjectId, ref: "seller", required: true },
+  isActive:{type:Boolean,default:true}
 });
 
 const purchaseSchema = new Schema({
   buyerId: { type: ObjectId, ref: "buyer", required: true },
-  itemId: { type: ObjectId, ref: "product", required: true },
+  productId: { type: ObjectId, ref: "product", required: true },
   quantity: { type: Number, default: 1 },
   totalPrice: Number,
   status: { 

@@ -1,10 +1,11 @@
 
 const { Router }=require("express");
-const {buyerModel,adminModel}=require("../db");
+const {buyerModel,adminModel,productModel,purchaseModel}=require("../db");
 
 const jwt=require("jsonwebtoken");
 
 const {JWT_BUYER_PASSWORD }=require("../config");
+const { buyerMiddleware }=require("../middlewares/buyermiddleware");
 const bcrypt=require("bcrypt");
 const zod=require("zod");
 
@@ -105,14 +106,46 @@ BuyerRouter.post("/signin", async (req, res) => {
 
 
 
-BuyerRouter.post("/purchase",(req,res)=>{
+BuyerRouter.post("/purchase", buyerMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { productId, quantity } = req.body;
+
+    const product = await productModel.findById(productId);
+    if (!product || !product.isActive) {
+      return res.status(400).json({ message: "Product not found" });
+    }
+
+    if (product.stock < (quantity || 1)) {
+      return res.status(400).json({ message: "Insufficient stock" });
+    }
+
+    const totalPrice = product.price * (quantity || 1);
+
+    const purchase = await purchaseModel.create({
+      buyerId: userId,
+      productId,
+      quantity: quantity || 1,
+      totalPrice,
+      status: "pending",
+    });
+
+    await buyerModel.findByIdAndUpdate(userId, {
+      $push: { purchases: purchase._id },
+    });
+
+    product.stock -= (quantity || 1);
+    await product.save();
+
     res.json({
-        message:"Purchase EndPoint"
-    })
+      message: "Purchase successful",
+      purchase,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong", error: err.message });
+  }
 });
-
-
-
 
 
 module.exports={BuyerRouter}
