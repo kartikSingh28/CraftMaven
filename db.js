@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 
-const mongoose = require("mongoose");
-
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -9,9 +7,8 @@ mongoose.connect(process.env.MONGO_URL, {
   console.log("Connected to MongoDB");
 }).catch(err => console.error("Connection error:", err));
 
-
 const Schema = mongoose.Schema;
-const ObjectId = mongoose.Schema.Types.ObjectId;
+const ObjectId = Schema.Types.ObjectId;
 
 const adminSchema = new Schema({
   email: { type: String, unique: true, required: true },
@@ -29,7 +26,7 @@ const buyerSchema = new Schema({
   lastName: String,
   address: String,
   createdAt: { type: Date, default: Date.now },
-  purchases:[{type:ObjectId,ref:"purchase"}]
+  purchases: [{ type: ObjectId, ref: "purchase" }]
 });
 
 const sellerSchema = new Schema({
@@ -44,18 +41,18 @@ const sellerSchema = new Schema({
 const productSchema = new Schema({
   name: { type: String, required: true },
   description: String,
-  price: { type: Number, required: true },
+  price: { type: Number, required: true, min: 0 },
   category: String,
-  stock: { type: Number, default: 0 },
+  stock: { type: Number, default: 0, min: 0 },
   sellerId: { type: ObjectId, ref: "seller", required: true },
-  isActive:{type:Boolean,default:true}
+  isActive: { type: Boolean, default: true }
 });
 
 const purchaseSchema = new Schema({
   buyerId: { type: ObjectId, ref: "buyer", required: true },
   productId: { type: ObjectId, ref: "product", required: true },
-  quantity: { type: Number, default: 1 },
-  totalPrice: Number,
+  quantity: { type: Number, default: 1, min: 1 },
+  totalPrice: { type: Number, min: 0 },
   status: { 
     type: String, 
     enum: ["pending", "shipped", "delivered", "cancelled"], 

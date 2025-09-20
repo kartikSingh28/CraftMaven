@@ -147,5 +147,47 @@ BuyerRouter.post("/purchase", buyerMiddleware, async (req, res) => {
   }
 });
 
+// get all purchases history(order history)
+BuyerRouter.get("/purchases",buyerMiddleware,async (req,res)=>{
+  try{
+    const userId=req.userId;
+
+    const purchases=await purchaseModel.find({buyerId:userId}).populate("productId","name price category");
+
+    res.json({
+      message:"Order history fetched Successfully",
+      purchases,
+    });
+  }catch(err){
+    console.log(err);
+    res.status(500).json({
+      message:"Something went wrong",
+      errror:err.message
+    });
+  }
+
+});
+
+//buyer profile endpoint
+
+BuyerRouter.get("/profile",buyerMiddleware,async (req,res)=>{
+  try{
+    const userId=req.userId;
+
+    const user=await buyerModel.findById(userId).select("-password");
+
+    res.json({
+      message:"Your Profile",
+      user
+    });
+  }catch(err){
+    console.log(err);
+    res.status(500).json({
+      message:"Something wemt wrong",
+      error:err.message
+    });
+  }
+})
+
 
 module.exports={BuyerRouter}
