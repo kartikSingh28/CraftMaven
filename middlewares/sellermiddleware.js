@@ -2,7 +2,7 @@ const jwt=require("jsonwebtoken");
 
 const {JWT_SELLER_PASSWORD}=require("../config.js");
 
-function sellerMiddleware(req,res,next){
+function sellerMiddleWare(req,res,next){
     const token=req.headers.token;
 
     if(!token){
@@ -23,4 +23,4 @@ function sellerMiddleware(req,res,next){
     }
 }
 
-module.exports(sellerMiddleware);
+module.exports(sellerMiddleWare);
