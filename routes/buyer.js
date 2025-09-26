@@ -1,6 +1,7 @@
 
 const { Router }=require("express");
 const {buyerModel,adminModel,productModel,purchaseModel}=require("../db");
+const { cartModel }=require("../models/cart");
 
 const jwt=require("jsonwebtoken");
 
@@ -187,7 +188,84 @@ BuyerRouter.get("/profile",buyerMiddleware,async (req,res)=>{
       error:err.message
     });
   }
-})
+});
+
+//shopping cart endpoints
+
+BuyerRouter.post("/cart/add",buyerMiddleware,async (req,res)=>{
+  const {productId,quantity}=req.body;
+  const buyerId=req.userId;
+
+  if(!productId){
+    return res.status(400).json({
+      message:"product ID is required"
+    });
+  }
+  try{
+    const existingItem=await cartModel.findOne({buyerId,productId});
+
+    if(existingItem){
+      existingItem.quantity+=quantity || 1;
+      await existingItem.save();
+      return res.json({
+        message:"Cart Updated",item:existingItem
+      });
+    }
+
+    const newItem= await cartModel.create({
+      buyerId,
+      productId,
+      quantity:quantity || 1,
+    });
+
+    res.status(201).json({
+      message:"Item Added to The Cart",
+      item:newItem
+    });
+  }catch(err){
+    res.status(500).json({
+      message:"Something went wrong",
+      error:err.message
+    });
+  }
+});
+
+//show buyerCurrent Cart
+
+BuyerRouter.get("/cart",buyerMiddleware,async (req,res)=>{
+  const buyerId=req.userId;
+
+  try{
+    const items=await cartModel.find({buyerId}).populate("productId","name price image");
+    res.json({
+      message:"Cart Fetched",cart:items
+    });
+  }catch(err){
+    res.status(500).json({
+      message:"Something went wrong",
+      error: err.message
+    });
+  }
+});
+
+//remove from current
+
+BuyerRouter.delete("/cart/:productId",buyerMiddleware,async (req,res)=>{
+  const buyerId=req.userId;
+  const {productId}=req.params;
+
+  try{
+    await cartModel.findOneAndDelete({buyerId,productId});
+    res.json({
+      message:"Item Removed From Cart"
+    });
+  }catch(err){
+    res.status(500).json({
+      message:"SomeThing went  wrong",
+      error:err.message
+    })
+  }
+});
 
 
 module.exports={BuyerRouter}
