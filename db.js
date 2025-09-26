@@ -1,11 +1,5 @@
 const mongoose = require("mongoose");
 
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("Connected to MongoDB");
-}).catch(err => console.error("Connection error:", err));
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
@@ -45,7 +39,8 @@ const productSchema = new Schema({
   category: String,
   stock: { type: Number, default: 0, min: 0 },
   sellerId: { type: ObjectId, ref: "seller", required: true },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  image: { type: String }
 });
 
 const purchaseSchema = new Schema({

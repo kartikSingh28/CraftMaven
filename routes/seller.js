@@ -1,12 +1,17 @@
 const { Router } = require("express");
+const multer = require("multer");
+const cloudinary = require("../cloudinary.js");
 const jwt = require("jsonwebtoken");
 const { sellerModel, productModel } = require("../db.js");
-const { sellerMiddleware } = require("../middlewares/sellermiddleware.js");
+const { sellerMiddleWare } = require("../middlewares/sellermiddleware.js");
 const { JWT_SELLER_PASSWORD } = require("../config.js");
 const bcrypt = require("bcrypt");
 const zod = require("zod");
 
 const sellerRouter = Router();
+
+// 🔹 Multer setup for temporary local storage
+const upload = multer({ dest: "uploads/" });
 
 
 sellerRouter.post("/signup", async (req, res) => {
@@ -63,13 +68,22 @@ sellerRouter.post("/signin", async (req, res) => {
   }
 });
 
-// sell
-sellerRouter.post("/sell", sellerMiddleware, async (req, res) => {
+
+sellerRouter.post("/sell", sellerMiddleWare, upload.single("image"), async (req, res) => {
   try {
     const sellerId = req.userId;
     const { name, description, price, stock, category } = req.body;
 
     if (!name || !price) return res.status(400).json({ message: "Name and price are required" });
+
+    // Upload image to Cloudinary if provided
+    let imageUrl = "";
+    if (req.file) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "products",
+      });
+      imageUrl = uploadResult.secure_url;
+    }
 
     const product = await productModel.create({
       name,
@@ -79,6 +93,7 @@ sellerRouter.post("/sell", sellerMiddleware, async (req, res) => {
       category: category || "general",
       sellerId,
       isActive: true,
+      image: imageUrl,
     });
 
     res.status(201).json({ message: "Product listed successfully", product });
@@ -87,7 +102,6 @@ sellerRouter.post("/sell", sellerMiddleware, async (req, res) => {
   }
 });
 
-/* -------------------- List Seller Products -------------------- */
 sellerRouter.get("/products", sellerMiddleWare, async (req, res) => {
   try {
     const sellerId = req.userId;
@@ -98,7 +112,7 @@ sellerRouter.get("/products", sellerMiddleWare, async (req, res) => {
   }
 });
 
-/* -------------------- Update Product -------------------- */
+
 sellerRouter.patch("/product/:id", sellerMiddleWare, async (req, res) => {
   try {
     const sellerId = req.userId;

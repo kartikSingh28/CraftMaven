@@ -23,4 +23,4 @@ function sellerMiddleWare(req,res,next){
     }
 }
 
-module.exports(sellerMiddleWare);
+module.exports={sellerMiddleWare}
