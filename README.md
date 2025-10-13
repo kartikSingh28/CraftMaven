@@ -1,45 +1,12 @@
-# 🌟 CraftMaven
+# React + Vite
 
-CraftMaven is a modern, curated e-commerce marketplace built for local artisans, crafters, and small businesses to showcase and sell their unique handmade products.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Think of it as a refined version of Etsy — focused on **local stories**, **quality craftsmanship**, and **delightful shopping experiences**.
+Currently, two official plugins are available:
 
----
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## 🚀 Tech Stack
+## Expanding the ESLint configuration
 
-### 🖼 Frontend
-- **React** (Vite) — blazing-fast build tool for modern React
-- **TailwindCSS** — utility-first CSS framework
-- **React Router** — client-side routing
-- **Recoil / React Query** — state and server data management
-- **Cloudinary** — media hosting & optimization
-
-### 🛠 Backend
-- **Node.js + Express** — RESTful API server
-- **MongoDB (Atlas)** — NoSQL database
-- **JWT Auth** — secure token-based authentication
-- **Stripe** — payments and checkout flow
-- **S3 / Cloudinary** — file & image uploads
-- **SendGrid / Nodemailer** — email notifications (orders, receipts, etc.)
-
----
-
-## 📁 Project Structure
-
-```bash
-craftmaven/
-│
-├── apps/
-│   ├── client/         # React frontend (Vite)
-│   └── server/         # Express backend
-│
-├── packages/
-│   ├── ui/             # Shared components
-│   ├── hooks/          # Reusable frontend hooks
-│   ├── types/          # Shared TypeScript types
-│   └── utils/          # Shared utilities
-│
-├── scripts/            # DB seeding, backups, CLI tools
-├── infrastructure/     # CI, Docker, Nginx configs
-└── README.md
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
