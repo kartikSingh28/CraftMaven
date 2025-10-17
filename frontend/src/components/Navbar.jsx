@@ -1,14 +1,19 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/LOGO.png"; // adjust the path to your logo
 
 export function NavBar() {
   return (
     <nav className="fixed top-0 left-0 w-full flex justify-between items-center bg-white px-10 py-4 shadow-md z-50">
-      {/* Logo */}
-      <Link
-        to="/"
-        className="text-2xl font-bold text-emerald-700 tracking-wide"
-      >
-        Craft<span className="text-amber-600">Maven</span>
+      {/* Logo + Brand Name */}
+      <Link to="/" className="flex items-center gap-3">
+        <img
+          src={logo}
+          alt="CraftMaven Logo"
+          className="w-16 h-16 object-contain" // Increased size from w-12 h-12
+        />
+        <span className="text-2xl font-bold text-emerald-700 tracking-wide">
+          Craft<span className="text-amber-600">Maven</span>
+        </span>
       </Link>
 
       {/* Search Box */}
