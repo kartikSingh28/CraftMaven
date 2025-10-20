@@ -6,7 +6,7 @@ export function NavBar() {
   const [loginOpen, setLoginOpen] = useState(false);
   const dropdownRef = useRef();
 
-  // Close dropdown if clicked outside
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

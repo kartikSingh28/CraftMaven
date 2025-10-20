@@ -94,7 +94,7 @@ export function Home() {
         </div>
       </section>
 
-    
+    <Footer />
     </>
   );
 }
