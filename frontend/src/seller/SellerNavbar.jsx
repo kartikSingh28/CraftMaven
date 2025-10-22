@@ -170,7 +170,7 @@ export function SellerNavbar() {
               <Link to="/faqs" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
                 FAQs
               </Link>
-              <Link to="/policies" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
+              <Link to="/Policies" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
                 Policies
               </Link>
             </div>

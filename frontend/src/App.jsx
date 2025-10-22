@@ -6,6 +6,8 @@ import { Footer } from "./components/Footer";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
 import { SellerFaq } from "./seller/sellerPages/sellerFaq";
+import {Policy} from "./seller/sellerPages/Policy";
+import {SellerAds} from "./seller/sellerPages/SellerAds";
 import "./App.css";
 
 function App() {
@@ -22,9 +24,11 @@ function App() {
 
         {/* Seller-specific FAQ page */}
         <Route path="/faqs" element={<SellerFaq />} />
+        <Route path="/Policies" element={<Policy />} />
+        <Route path="/craftmaven-ads" element={<SellerAds />} />
       </Routes>
 
-      <Footer />
+      
     </BrowserRouter>
   );
 }
