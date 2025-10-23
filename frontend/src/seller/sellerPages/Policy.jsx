@@ -1,5 +1,5 @@
 import { SellerNavbar } from "../SellerNavbar";
-
+import {SellerFooter} from "../SellerFooter";
 
 export function Policy() {
     return (
@@ -86,6 +86,7 @@ export function Policy() {
                     Address: 123 Artisan Lane, Maker City, MA 01234
                 </p>
             </div>
+            <SellerFooter />
         </>
     );
 }

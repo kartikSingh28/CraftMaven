@@ -1,9 +1,12 @@
-import { SellerNavbar } from "../SellerNavbar";
-import { FaqCardComponent } from "../sellerComponents/faqCard1";
-import { FaqInfo } from "./FaqInfo";
-import FaqImage from "../../assets/sellerFaq.png"; 
+import {FaqCardComponent} from "../sellerComponents/faqCard1";
+import {SellerNavbar} from "../SellerNavbar";
 import {SellerFooter} from "../SellerFooter";
-const steps = [
+import InsightsMdlImg from "../../assets/InsightsAndTools.png";
+import {InsightComponent} from "../sellerComponents/InsightComponent";
+
+
+export function InsightsAndTools(){
+  const steps = [
   {
     icon: <span className="text-3xl">🧑‍🤝‍🧑</span>,
     title: "45K+ CraftMaven Buyers",
@@ -25,19 +28,16 @@ const steps = [
     description: "Get quick help anytime through our dedicated seller support team.",
   },
 ];
-
-export function SellerFaq() {
-  return (
-    <>
-      <SellerNavbar />
-      <FaqCardComponent
-        title="FAQ’s – Frequently Asked Questions"
-        subtitle="Get your queries quickly answered by our experts."
-        image={FaqImage}
-        steps={steps}
-      />
-      <FaqInfo />
-      <SellerFooter />
-    </>
-  );
+    return (
+        <>
+        <SellerNavbar />
+        <FaqCardComponent title="SuperCharge your business with industry-leading tools & services "
+                image={InsightsMdlImg}
+                steps={steps}
+        />
+        <InsightComponent />
+        <SellerFooter />
+          
+        </>
+    )
 }
