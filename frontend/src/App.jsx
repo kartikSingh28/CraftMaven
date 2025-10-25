@@ -10,6 +10,7 @@ import {Policy} from "./seller/sellerPages/Policy";
 import {SellerAds} from "./seller/sellerPages/SellerAds";
 import {InsightsAndTools} from "./seller/sellerPages/InsightsAndTools";
 import {SellerResources} from "./seller/sellerPages/SellerResources";
+import {ValueAddedServices} from "./seller/sellerPages/ValueAddedServices";
 import "./App.css";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/craftmaven-ads" element={<SellerAds />} />
         <Route path="/insights-tools" element={<InsightsAndTools />} />
         <Route path="/resources" element ={<SellerResources />} />
+        <Route path="/vas" element ={<ValueAddedServices />} />
       </Routes>
 
       
