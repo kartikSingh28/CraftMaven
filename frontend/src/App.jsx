@@ -11,6 +11,7 @@ import {SellerAds} from "./seller/sellerPages/SellerAds";
 import {InsightsAndTools} from "./seller/sellerPages/InsightsAndTools";
 import {SellerResources} from "./seller/sellerPages/SellerResources";
 import {ValueAddedServices} from "./seller/sellerPages/ValueAddedServices";
+import {SellerPayments} from "./seller/sellerPages/SellerPayments";
 import "./App.css";
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/insights-tools" element={<InsightsAndTools />} />
         <Route path="/resources" element ={<SellerResources />} />
         <Route path="/vas" element ={<ValueAddedServices />} />
+        <Route path="payments-info" element ={<SellerPayments />} />
       </Routes>
 
       

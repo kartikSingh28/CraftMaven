@@ -141,9 +141,7 @@ export function SellerNavbar() {
               <Link to="/craftmaven-ads" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
                 CraftMaven Ads
               </Link>
-              <Link to="/service-partners" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
-                Service Partners
-              </Link>
+              
             </div>
           )}
         </div>
