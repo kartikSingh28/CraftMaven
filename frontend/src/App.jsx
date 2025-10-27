@@ -14,6 +14,7 @@ import {ValueAddedServices} from "./seller/sellerPages/ValueAddedServices";
 import {SellerPayments} from "./seller/sellerPages/SellerPayments";
 import { StorageAndShipping } from "./seller/sellerPages/StorageAndShipping";
 import {GrowFaster} from "./seller/sellerPages/GrowFaster";
+import {ListProducts} from "./seller/sellerPages/ListProducts";
 
 import "./App.css";
 
@@ -39,6 +40,7 @@ function App() {
         <Route path="/payments-info" element ={<SellerPayments />} />
         <Route path="/storage-shipping" element={<StorageAndShipping />} />
         <Route path="/grow-faster" element={<GrowFaster />} />
+        <Route path="/list-products" element ={<ListProducts />} />
       </Routes>
 
       

@@ -75,7 +75,7 @@ export function GrowFasterComponent() {
           </motion.button>
         </motion.div>
 
-        {/* Right Image */}
+        {/* Right Image */1}
         <motion.div
           className="md:w-1/2"
           initial={{ opacity: 0, x: 80 }}
