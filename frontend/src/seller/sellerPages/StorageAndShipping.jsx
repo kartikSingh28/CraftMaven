@@ -1,8 +1,9 @@
 import {SellerNavbar} from "../SellerNavbar";
 import {SellerFooter} from "../SellerFooter";
 import {FaqCardComponent} from "../sellerComponents/faqCard1";
-import img from "../../assets/SellerPayments.png";
-import {SellerPaymentsComponent} from "../sellerComponents/SellerPaymentsComponent";
+import img from "../../assets/Storage&Shpping.png";
+import {StorageAndShippingComponent} from "../sellerComponents/StorageAndShippingComponent";
+
 
  import {
   Users,
@@ -12,9 +13,9 @@ import {SellerPaymentsComponent} from "../sellerComponents/SellerPaymentsCompone
 } from "lucide-react";
 
 
-export function SellerPayments() {
 
-const res = [
+export function StorageAndShipping() {
+    const res = [
   {
     icon: <Users className="w-10 h-10 text-[#C45A28]" />,
     title: "45k+ Craftmaven Customers",
@@ -40,19 +41,19 @@ const res = [
       "Get instant assistance from our dedicated Craftmaven support team, 24x7.",
   },
 ];
-
     return (
-         <>
-           <SellerNavbar />
-          <FaqCardComponent
-            title="CraftMaven Payments: Smarter, Faster, Better"
-            subtitle="Streamline your business without breaking the bank"
-            image={img}
-            steps={res} 
-          />
 
-            <SellerPaymentsComponent />
-            <SellerFooter />
-         </>
+        <>
+          <SellerNavbar />
+          <FaqCardComponent 
+             title="Seamless Shipping & Secure Storage"
+             subtitle="Ensuring your crafted creations reach customers safely, swiftly, and in perfect condition — with CraftMaven’s trusted logistics care."
+             image={img}
+             steps={res}
+          />
+          <StorageAndShippingComponent />
+          <SellerFooter />
+             
+        </>
     )
 }
