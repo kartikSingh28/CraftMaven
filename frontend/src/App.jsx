@@ -15,7 +15,7 @@ import {SellerPayments} from "./seller/sellerPages/SellerPayments";
 import { StorageAndShipping } from "./seller/sellerPages/StorageAndShipping";
 import {GrowFaster} from "./seller/sellerPages/GrowFaster";
 import {ListProducts} from "./seller/sellerPages/ListProducts";
-
+import {ReceivePayments} from "./seller/sellerPages/ReceivePayments";
 import "./App.css";
 
 function App() {
@@ -41,6 +41,7 @@ function App() {
         <Route path="/storage-shipping" element={<StorageAndShipping />} />
         <Route path="/grow-faster" element={<GrowFaster />} />
         <Route path="/list-products" element ={<ListProducts />} />
+        <Route path="/receive-payments" element ={<ReceivePayments />} />
       </Routes>
 
       

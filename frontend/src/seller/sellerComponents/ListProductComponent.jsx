@@ -53,7 +53,7 @@ export function ListProductsComponent() {
           <div className="space-y-6">
             <div>
               <h4 className="text-xl font-semibold text-[#C45A28] mb-2">
-                1️⃣ Match with Existing Creations
+                1️ Match with Existing Creations
               </h4>
               <p>
                 If a similar product already exists on CraftMaven, 
@@ -65,7 +65,7 @@ export function ListProductsComponent() {
 
             <div>
               <h4 className="text-xl font-semibold text-[#C45A28] mb-2">
-                2️⃣ Create a New Listing
+                2️ Create a New Listing
               </h4>
               <p>
                 For your unique handmade products, simply create a 
