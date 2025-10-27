@@ -13,6 +13,7 @@ import {SellerResources} from "./seller/sellerPages/SellerResources";
 import {ValueAddedServices} from "./seller/sellerPages/ValueAddedServices";
 import {SellerPayments} from "./seller/sellerPages/SellerPayments";
 import { StorageAndShipping } from "./seller/sellerPages/StorageAndShipping";
+import {GrowFaster} from "./seller/sellerPages/GrowFaster";
 
 import "./App.css";
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/vas" element ={<ValueAddedServices />} />
         <Route path="/payments-info" element ={<SellerPayments />} />
         <Route path="/storage-shipping" element={<StorageAndShipping />} />
+        <Route path="/grow-faster" element={<GrowFaster />} />
       </Routes>
 
       
