@@ -16,6 +16,7 @@ import { StorageAndShipping } from "./seller/sellerPages/StorageAndShipping";
 import {GrowFaster} from "./seller/sellerPages/GrowFaster";
 import {ListProducts} from "./seller/sellerPages/ListProducts";
 import {ReceivePayments} from "./seller/sellerPages/ReceivePayments";
+import {FeeType} from "./seller/sellerPages/FeeType";
 import "./App.css";
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
         <Route path="/grow-faster" element={<GrowFaster />} />
         <Route path="/list-products" element ={<ListProducts />} />
         <Route path="/receive-payments" element ={<ReceivePayments />} />
+        <Route path="/fee-type" element ={<FeeType />} />
       </Routes>
 
       

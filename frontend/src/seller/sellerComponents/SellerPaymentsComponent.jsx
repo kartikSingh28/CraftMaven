@@ -1,15 +1,15 @@
 import React from "react";
-import img from "../../assets/SellerPayments2.png"
+import img from "../../assets/SellerPayments2.png";
 
 export function SellerPaymentsComponent() {
   return (
-    <div className="bg-[#FFF7EE] py-12 px-6">
+    <div className="bg-[#FFF7EE] min-h-screen py-12 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Card Container */}
-        <div className="bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col md:flex-row items-center">
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col md:flex-row items-center min-h-screen">
           
           {/* Left Text Section */}
-          <div className="md:w-3/5 w-full p-8 text-gray-800">
+          <div className="md:w-3/5 w-full p-8 text-gray-800 overflow-y-auto">
             <h1 className="text-3xl font-bold text-[#C45A28] mb-6">
               Craftmaven Seller Payments & Fees
             </h1>
@@ -68,7 +68,7 @@ export function SellerPaymentsComponent() {
             </section>
 
             {/* Fee Type */}
-            <section className="mb-10">
+            <section id="fee-type-section" className="mb-10">
               <h2 className="text-2xl font-semibold text-[#C45A28] mb-4">
                 Fee Types
               </h2>
@@ -199,7 +199,7 @@ export function SellerPaymentsComponent() {
           </div>
 
           {/* Right Image Section */}
-          <div className="md:w-2/5 w-full">
+          <div className="md:w-2/5 w-full h-full">
             <img
               src={img}
               alt="Craftmaven Seller Payments"

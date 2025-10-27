@@ -100,17 +100,15 @@ export function SellerNavbar() {
 
           {feesDropdown && (
             <div className="absolute top-full mt-2 w-60 bg-white border rounded shadow-lg py-2 z-50">
-              <Link to="/fees" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
-                Fees
+              <Link to="/fee-type" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
+                Fee Type
               </Link>
-              <Link to="/commissions" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
-                Commissions
-              </Link>
+              
               <Link to="/payments-info" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
                 Payments
               </Link>
-              <Link to="/other-charges" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
-                Other Charges
+              <Link to="/gross-margin" className="block px-4 py-2 hover:bg-[#C65A2E] hover:text-white transition">
+                Calculate Gross Margin
               </Link>
             </div>
           )}
