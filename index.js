@@ -1,12 +1,20 @@
 require('dotenv').config()
 const express=require("express");
 const app=express();
+const cors = require("cors");
 const mongoose=require("mongoose");
 const { BuyerRouter }=require("./routes/buyer");
 const { sellerRouter }=require("./routes/seller");
 const { adminRouter }=require("./routes/admin");
 
 app.use(express.json());
+
+//cors
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 
 app.use("/api/v1/buyer",BuyerRouter);
 app.use("/api/v1/seller",sellerRouter);

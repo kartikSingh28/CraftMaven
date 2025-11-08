@@ -20,7 +20,7 @@ export function GrossMargin() {
     {
       icon: <Scale className="w-10 h-10 text-[#C45A28]" />,
       title: "Step 3: Calculate Fixed Fees",
-      description: `As a Gold Tier seller using Fulfillment by Flipkart (FBF), the fixed fee is ₹57.`,
+      description: `As a Gold Tier seller using Fulfillment by CraftMaven, the fixed fee is ₹57.`,
     },
     {
       icon: <Calculator className="w-10 h-10 text-[#C45A28]" />,
@@ -35,7 +35,7 @@ Gross Margin = Selling Price ₹450 - ₹93.25 = ₹356.75`,
       <SellerNavbar />
       <FaqCardComponent
         title="How to Calculate Your Gross Margin?"
-        subtitle="Understand your costs and profits using Flipkart’s fee breakdown model"
+        subtitle="Understand your costs and profits using CraftMaven fee breakdown model"
         image={grossMarginImg}
         steps={steps}
       />
