@@ -7,6 +7,7 @@ const { sellerMiddleWare } = require("../middlewares/sellermiddleware.js");
 const { JWT_SELLER_PASSWORD } = require("../config.js");
 const bcrypt = require("bcrypt");
 const zod = require("zod");
+const fs = require("fs");
 
 const sellerRouter = Router();
 
@@ -83,6 +84,9 @@ sellerRouter.post("/sell", sellerMiddleWare, upload.single("image"), async (req,
         folder: "products",
       });
       imageUrl = uploadResult.secure_url;
+
+      // ✅ Delete temporary local file after upload
+      fs.unlinkSync(req.file.path);
     }
 
     const product = await productModel.create({
@@ -97,16 +101,6 @@ sellerRouter.post("/sell", sellerMiddleWare, upload.single("image"), async (req,
     });
 
     res.status(201).json({ message: "Product listed successfully", product });
-  } catch (err) {
-    res.status(500).json({ message: "Something went wrong", error: err.message });
-  }
-});
-
-sellerRouter.get("/products", sellerMiddleWare, async (req, res) => {
-  try {
-    const sellerId = req.userId;
-    const products = await productModel.find({ sellerId });
-    res.json({ message: "Products fetched successfully", products });
   } catch (err) {
     res.status(500).json({ message: "Something went wrong", error: err.message });
   }
