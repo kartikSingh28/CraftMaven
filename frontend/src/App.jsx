@@ -18,6 +18,9 @@ import {ListProducts} from "./seller/sellerPages/ListProducts";
 import {ReceivePayments} from "./seller/sellerPages/ReceivePayments";
 import {FeeType} from "./seller/sellerPages/FeeType";
 import {GrossMargin} from "./seller/sellerPages/GrossMargin";
+import {SellerSignup} from "./pages/SellerSignup";
+import { SellerControlPanel } from "./seller/sellerPages/SellerControlPanel";
+
 import "./App.css"; 
 
 function App() {
@@ -46,6 +49,9 @@ function App() {
         <Route path="/receive-payments" element ={<ReceivePayments />} />
         <Route path="/fee-type" element ={<FeeType />} />
         <Route path ="/gross-margin" element ={<GrossMargin />} />
+        <Route path="/create-account" element={<SellerSignup />} />
+        <Route path="/seller/control" element={<SellerControlPanel />} />
+
       </Routes>
 
       

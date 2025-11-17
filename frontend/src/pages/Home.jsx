@@ -4,15 +4,27 @@ import logo from "../assets/LOGO.png";
 import { NavBar } from "../components/Navbar";
 import ShowcaseCardComponent from "../components/ShowcaseCardComponent";
 import { Footer } from "../components/Footer";
+import prd1 from "../../src/assets/p1.png";
+import prd2 from "../../src/assets/p2.png";
+
+import prd3 from "../../src/assets/p3.png";
+import prd4 from "../../src/assets/p4.png";
+
+import prd5 from "../../src/assets/p5.png";
+
+import prd6 from "../../src/assets/p6.png";
+
+
 
 const products = [
-  { title: "Handcrafted Vase", price: 499, image: "https://via.placeholder.com/300x200" },
-  { title: "Wooden Sculpture", price: 899, image: "https://via.placeholder.com/300x200" },
-  { title: "Clay Pottery Set", price: 649, image: "https://via.placeholder.com/300x200" },
-  { title: "Artisan Basket", price: 299, image: "https://via.placeholder.com/300x200" },
-  { title: "Jute Handbag", price: 799, image: "https://via.placeholder.com/300x200" },
-  { title: "Decor Mirror", price: 1099, image: "https://via.placeholder.com/300x200" },
+  { title: "Handcrafted Vase", price: 499, image: prd1 },
+  { title: "Wooden Sculpture", price: 899, image: prd2 },
+  { title: "Clay Pottery Set", price: 649, image: prd3 },
+  { title: "Artisan Basket", price: 299, image: prd4 },
+  { title: "Jute Handbag", price: 799, image: prd5 },
+  { title: "Decor Mirror", price: 1099, image: prd6 },
 ];
+
 
 export function Home() {
   const [showSplash, setShowSplash] = useState(true);
