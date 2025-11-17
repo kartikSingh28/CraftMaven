@@ -6,6 +6,7 @@ const mongoose=require("mongoose");
 const { BuyerRouter }=require("./routes/buyer");
 const { sellerRouter }=require("./routes/seller");
 const { adminRouter }=require("./routes/admin");
+const { productRouter } = require("./routes/product");
 
 app.use(express.json());
 
@@ -19,6 +20,7 @@ app.use(cors({
 app.use("/api/v1/buyer",BuyerRouter);
 app.use("/api/v1/seller",sellerRouter);
 app.use("/api/v1/admin",adminRouter);
+app.use("/api/v1/products", productRouter);
 
 async function main(){
     try{

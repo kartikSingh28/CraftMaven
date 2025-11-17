@@ -1,22 +1,18 @@
+// src/pages/Home.jsx
 import React, { useState, useEffect } from "react";
-import ProductCard from "../components/ProductCard";
-import logo from "../assets/LOGO.png";
-import { NavBar } from "../components/Navbar";
+import NavBar from "../components/NavBar";
 import ShowcaseCardComponent from "../components/ShowcaseCardComponent";
 import { Footer } from "../components/Footer";
-import prd1 from "../../src/assets/p1.png";
-import prd2 from "../../src/assets/p2.png";
+import prd1 from "../assets/p1.png";
+import prd2 from "../assets/p2.png";
+import prd3 from "../assets/p3.png";
+import prd4 from "../assets/p4.png";
+import prd5 from "../assets/p5.png";
+import prd6 from "../assets/p6.png";
+import ProductList from "../components/ProductList";
+import logo from "../assets/LOGO.png";
 
-import prd3 from "../../src/assets/p3.png";
-import prd4 from "../../src/assets/p4.png";
-
-import prd5 from "../../src/assets/p5.png";
-
-import prd6 from "../../src/assets/p6.png";
-
-
-
-const products = [
+const trendingProducts = [
   { title: "Handcrafted Vase", price: 499, image: prd1 },
   { title: "Wooden Sculpture", price: 899, image: prd2 },
   { title: "Clay Pottery Set", price: 649, image: prd3 },
@@ -25,8 +21,7 @@ const products = [
   { title: "Decor Mirror", price: 1099, image: prd6 },
 ];
 
-
-export function Home() {
+export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -34,8 +29,15 @@ export function Home() {
     return () => clearTimeout(timer);
   }, []);
 
+  // while splash is visible, lock scrolling
+  useEffect(() => {
+    document.body.style.overflow = showSplash ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showSplash]);
+
   if (showSplash) {
-    document.body.style.overflow = "hidden";
     return (
       <div className="relative flex items-center justify-center h-screen w-screen overflow-hidden bg-gradient-to-br from-[#2F6F68] via-[#3A7C6B] to-[#D17A45]">
         <div className="absolute w-80 h-80 bg-[#C65A2E]/25 rounded-full blur-3xl animate-pulse"></div>
@@ -48,65 +50,73 @@ export function Home() {
         />
       </div>
     );
-  } else {
-    document.body.style.overflow = "auto";
   }
 
   return (
     <>
       <NavBar />
 
-      {/* Hero Section */}
-      <div className="relative h-[60vh] flex items-center justify-center bg-gradient-to-r from-[#1B4D4A] to-[#C65A2E] text-white">
-        <div className="text-center px-6">
-          <h1 className="text-5xl font-extrabold mb-3 font-serif">Festive Handcrafted Collection</h1>
-          <p className="text-lg opacity-90 mb-6">
-            Explore limited edition artisanal designs crafted with love.
-          </p>
-          <button className="bg-[#F7F3EC] text-[#C65A2E] font-semibold px-6 py-3 rounded-full shadow-md hover:bg-[#C65A2E] hover:text-white transition duration-300">
-            Shop Now
-          </button>
-        </div>
-      </div>
-
-      {/* Showcase Section */}
-      <section className="bg-gradient-to-b from-[#F7F3EC] via-[#FFF9F5] to-[#FFFFFF] py-16">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-[#1B4D4A] mb-10">Discover the Craft Story</h2>
-          <p className="text-[#444] max-w-2xl mx-auto mb-10">
-            Each product is a piece of art — handwoven, sculpted, and crafted by passionate artisans.
-            Let’s celebrate the timeless beauty of handmade creations.
-          </p>
-
-          <ShowcaseCardComponent />
-        </div>
-      </section>
-
-      {/* Product Section */}
-      <section className="max-w-7xl mx-auto py-12 px-6">
-        <h2 className="text-3xl font-bold text-center text-[#1B4D4A] mb-10">Trending This Season</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.map((product, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl"
+      {/* push page content below the fixed navbar */}
+      <main className="pt-20 lg:pt-24">
+        {/* Hero Section */}
+        <section className="relative h-[60vh] flex items-center justify-center bg-gradient-to-r from-[#1B4D4A] to-[#C65A2E] text-white">
+          <div className="text-center px-6">
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-3 font-serif">Festive Handcrafted Collection</h1>
+            <p className="text-lg opacity-90 mb-6">
+              Explore limited edition artisanal designs crafted with love.
+            </p>
+            <button
+              onClick={() => window.scrollTo({ top: 700, behavior: "smooth" })}
+              className="bg-[#F7F3EC] text-[#C65A2E] font-semibold px-6 py-3 rounded-full shadow-md hover:bg-[#C65A2E] hover:text-white transition duration-300"
             >
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full h-56 object-cover"
-              />
-              <div className="p-4 text-center">
-                <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
-                <p className="text-[#C65A2E] font-bold mt-2">₹{product.price}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+              Shop Now
+            </button>
+          </div>
+        </section>
 
-    <Footer />
+        {/* Showcase Section */}
+        <section className="bg-gradient-to-b from-[#F7F3EC] via-[#FFF9F5] to-[#FFFFFF] py-16">
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <h2 className="text-3xl font-bold text-[#1B4D4A] mb-4">Discover the Craft Story</h2>
+            <p className="text-[#444] max-w-2xl mx-auto mb-10">
+              Each product is a piece of art — handwoven, sculpted, and crafted by passionate artisans.
+              Let’s celebrate the timeless beauty of handmade creations.
+            </p>
+
+            <ShowcaseCardComponent />
+          </div>
+        </section>
+
+        {/* Trending / Static products */}
+        <section className="max-w-7xl mx-auto py-12 px-6">
+          <h2 className="text-3xl font-bold text-center text-[#1B4D4A] mb-10">Trending This Season</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {trendingProducts.map((product, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl"
+              >
+                <img src={product.image} alt={product.title} className="w-full h-56 object-cover" />
+                <div className="p-4 text-center">
+                  <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
+                  <p className="text-[#C65A2E] font-bold mt-2">₹{product.price}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Live Products (from sellers) */}
+        <section className="bg-white py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-[#1B4D4A] mb-6 text-center">All Products</h2>
+            <ProductList />
+          </div>
+        </section>
+
+        <Footer />
+      </main>
     </>
   );
 }
