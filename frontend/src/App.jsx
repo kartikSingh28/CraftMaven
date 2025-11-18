@@ -24,6 +24,8 @@ import Cart from "./pages/Cart";
 import Home2 from "./pages/Home2";
 import ProductPage from "./components/ProductPage";
 
+
+
 import "./App.css"; 
 
 function App() {
@@ -40,6 +42,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/home2" element={<Home2 />} />
         <Route path="/product/:id" element={<ProductPage />} />
+       
+
 
 
 

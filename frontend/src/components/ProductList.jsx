@@ -1,6 +1,5 @@
-// src/components/ProductList.jsx
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom"; // ⭐ ADDED Link
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 function useQuery(locationSearch) {
   return new URLSearchParams(locationSearch);
@@ -55,12 +54,13 @@ export default function ProductList() {
     const newPage = Number(new URLSearchParams(location.search).get("page") || 1);
     setPage(newPage);
     load(newPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   async function addToCart(productId) {
     const token = localStorage.getItem("buyerToken");
     if (!token) {
-      alert("Please sign in as buyer to add to cart.");
+      navigate(`/signin?redirect=/`);
       return;
     }
     try {
@@ -74,7 +74,8 @@ export default function ProductList() {
       });
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.message || "Add to cart failed");
-      alert("Added to cart");
+      // Redirect to cart after success
+      navigate("/cart");
     } catch (e) {
       console.error("addToCart error:", e);
       alert(e.message || "Add to cart failed");
@@ -84,7 +85,7 @@ export default function ProductList() {
   async function buyNow(productId) {
     const token = localStorage.getItem("buyerToken");
     if (!token) {
-      alert("Please sign in as buyer to purchase.");
+      navigate(`/signin?redirect=/`);
       return;
     }
     if (!window.confirm("Proceed to buy this item now?")) return;
@@ -133,8 +134,6 @@ export default function ProductList() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((p) => (
               <div key={p._id} className="border rounded shadow-sm p-3 bg-white">
-
-                {/*  PRODUCT CLICK → PRODUCT PAGE */}
                 <Link to={`/product/${p._id}`}>
                   <div className="h-40 w-full mb-3 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition">
                     <img
@@ -148,7 +147,6 @@ export default function ProductList() {
                   </div>
                 </Link>
 
-                {/* ALSO MAKE THE NAME CLICKABLE */}
                 <Link to={`/product/${p._id}`}>
                   <div className="font-medium text-sm cursor-pointer hover:text-blue-600">
                     {p.name}

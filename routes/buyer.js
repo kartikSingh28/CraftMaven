@@ -212,23 +212,55 @@ BuyerRouter.post("/cart/add", buyerMiddleware, async (req, res) => {
 });
 
 // Get current cart
+// Get current cart (robust version)
 BuyerRouter.get("/cart", buyerMiddleware, async (req, res) => {
   try {
     const buyerId = req.userId;
-    // populate product fields needed by frontend (adjust select if you store seller differently)
+
+    // Defensive: ensure cartModel exists
+    if (!cartModel) {
+      console.error("Cart fetch error: cartModel is undefined");
+      return res.status(500).json({ message: "Internal server error (no cart model)" });
+    }
+
+    // Find items and populate product fields; catch populate issues gracefully
     const items = await cartModel
       .find({ buyerId })
       .populate({
         path: "productId",
-        select: "name price image sellerName seller isActive",
-        populate: { path: "seller", select: "name" }, // if your Product references Seller
+        // select only fields we expect to exist; if some fields are missing that's okay
+        select: "name price image sellerId isActive category stock",
+        // do not deep-populate blindly — seller reference may be sellerId in your product schema
       })
       .lean();
 
-    return res.json({ message: "Cart fetched", cart: items });
+    // Normalize items so frontend always gets productId as an object with safe defaults
+    const normalized = items.map((it) => {
+      const product = it.productId || {};
+      // if sellerId is populated object, derive sellerName; otherwise empty
+      const sellerObj = product.sellerId || {};
+      const sellerName = product.sellerName || sellerObj.shopName || `${(sellerObj.firstName||"").trim()} ${(sellerObj.lastName||"").trim()}`.trim() || "Unknown Seller";
+
+      return {
+        ...it,
+        productId: {
+          _id: product._id || null,
+          name: product.name || "Unknown product",
+          price: typeof product.price === "number" ? product.price : 0,
+          image: product.image || "",
+          isActive: typeof product.isActive === "boolean" ? product.isActive : true,
+          category: product.category || "",
+          stock: typeof product.stock === "number" ? product.stock : 0,
+          sellerName,
+        }
+      };
+    });
+
+    return res.json({ message: "Cart fetched", cart: normalized });
   } catch (err) {
-    console.error("Get cart error:", err);
-    return res.status(500).json({ message: "Something went wrong" });
+    // Log full stack for debugging
+    console.error("GET /cart error:", err && (err.stack || err.message || err));
+    return res.status(500).json({ message: "Something went wrong while fetching cart" });
   }
 });
 
