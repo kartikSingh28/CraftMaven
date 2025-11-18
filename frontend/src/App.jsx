@@ -22,6 +22,7 @@ import {SellerSignup} from "./pages/SellerSignup";
 import { SellerControlPanel } from "./seller/sellerPages/SellerControlPanel";
 import Cart from "./pages/Cart";
 import Home2 from "./pages/Home2";
+import ProductPage from "./components/ProductPage";
 
 import "./App.css"; 
 
@@ -38,6 +39,8 @@ function App() {
         <Route path="/seller" element={<SellerDashBoard />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/home2" element={<Home2 />} />
+        <Route path="/product/:id" element={<ProductPage />} />
+
 
 
         {/* Seller-specific FAQ page */}

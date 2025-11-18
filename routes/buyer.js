@@ -84,8 +84,6 @@ BuyerRouter.post("/signin", async (req, res) => {
   }
 });
 
-
-
 BuyerRouter.get("/me", buyerMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
@@ -107,6 +105,7 @@ BuyerRouter.get("/me", buyerMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 } );
+
 // Purchase a product (protected)
 BuyerRouter.post("/purchase", buyerMiddleware, async (req, res) => {
   try {
@@ -278,5 +277,92 @@ BuyerRouter.patch("/cart/:productId/decrement", buyerMiddleware, async (req, res
     return res.status(500).json({ message: "Something went wrong" });
   }
 });
+
+
+// --------------------- PRODUCT ROUTES ADDED HERE ---------------------
+// GET /api/v1/products  (list)
+BuyerRouter.get("/products", async (req, res) => {
+  try {
+    const q = (req.query.q || "").trim();
+    const category = (req.query.category || "").trim();
+    const page = Math.max(1, parseInt(req.query.page || "1", 10));
+    const limit = Math.max(1, parseInt(req.query.limit || "12", 10));
+
+    const filter = { isActive: true };
+    if (q) {
+      filter.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { description: { $regex: q, $options: "i" } }
+      ];
+    }
+    if (category) {
+      filter.category = { $regex: category, $options: "i" };
+    }
+
+    const total = await productModel.countDocuments(filter);
+    const pages = Math.max(1, Math.ceil(total / limit));
+    const skip = (page - 1) * limit;
+
+    const products = await productModel.find(filter)
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate({ path: "sellerId", select: "firstName lastName shopName" })
+      .lean();
+
+    const normalized = products.map((p) => {
+      const seller = p.sellerId || {};
+      const sellerName = (seller.shopName && seller.shopName.trim()) ||
+                         ((seller.firstName || seller.lastName) ? `${(seller.firstName||"").trim()} ${(seller.lastName||"").trim()}`.trim() : "Unknown");
+      return {
+        ...p,
+        sellerName,
+        image: p.image || ""
+      };
+    });
+
+    return res.json({
+      products: normalized,
+      total,
+      page,
+      pages
+    });
+  } catch (err) {
+    console.error("GET /products error:", err);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+// GET /api/v1/products/:id  (single product)
+BuyerRouter.get("/products/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product id" });
+    }
+
+    const p = await productModel.findById(id)
+      .populate({ path: "sellerId", select: "firstName lastName shopName" })
+      .lean();
+
+    if (!p) return res.status(404).json({ message: "Product not found" });
+
+    const seller = p.sellerId || {};
+    const sellerName = (seller.shopName && seller.shopName.trim()) ||
+                       ((seller.firstName || seller.lastName) ? `${(seller.firstName||"").trim()} ${(seller.lastName||"").trim()}`.trim() : "Unknown");
+
+    const product = {
+      ...p,
+      sellerName,
+      image: p.image || ""
+    };
+
+    return res.json({ product });
+  } catch (err) {
+    console.error("GET /products/:id error:", err);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+});
+// --------------------- END PRODUCT ROUTES ---------------------
 
 module.exports = { BuyerRouter };

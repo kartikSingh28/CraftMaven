@@ -1,5 +1,6 @@
-
+// routes/product.js
 const { Router } = require("express");
+const mongoose = require("mongoose");
 const { productModel } = require("../db");
 const productRouter = Router();
 
@@ -35,6 +36,7 @@ productRouter.get("/", async (req, res) => {
       ...p,
       sellerName: p.sellerId?.shopName || "Unknown Seller",
       sellerId: undefined,
+      image: p.image || ""
     }));
 
     res.json({ products: mapped, total, page, pages });
@@ -43,5 +45,36 @@ productRouter.get("/", async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
+// ---------- NEW: fetch single product by id ----------
+productRouter.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product id" });
+    }
+
+    const p = await productModel
+      .findById(id)
+      .populate("sellerId", "shopName firstName lastName")
+      .lean();
+
+    if (!p) return res.status(404).json({ message: "Product not found" });
+
+    const product = {
+      ...p,
+      sellerName: p.sellerId?.shopName ||
+                  ((p.sellerId?.firstName || p.sellerId?.lastName) ? `${(p.sellerId.firstName||"").trim()} ${(p.sellerId.lastName||"").trim()}`.trim() : "Unknown Seller"),
+      sellerId: undefined,
+      image: p.image || ""
+    };
+
+    return res.json({ product });
+  } catch (err) {
+    console.error("GET /products/:id error:", err);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+});
+// ---------- end single product route ----------
 
 module.exports = { productRouter };

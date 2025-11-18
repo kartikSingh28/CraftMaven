@@ -1,12 +1,11 @@
 // src/components/ProductList.jsx
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom"; // ⭐ ADDED Link
 
 function useQuery(locationSearch) {
   return new URLSearchParams(locationSearch);
 }
 
-// backend base URL (Vite env or fallback)
 const API_BASE = import.meta?.env?.VITE_API_BASE || "http://localhost:3000";
 
 export default function ProductList() {
@@ -21,7 +20,6 @@ export default function ProductList() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  // read q & category from URL every render
   const q = query.get("q") || "";
   const category = query.get("category") || "";
 
@@ -53,15 +51,12 @@ export default function ProductList() {
     }
   }
 
-  // load when location.search changes
   useEffect(() => {
     const newPage = Number(new URLSearchParams(location.search).get("page") || 1);
     setPage(newPage);
     load(newPage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]); // re-run when search changes
+  }, [location.search]);
 
-  // Add to cart
   async function addToCart(productId) {
     const token = localStorage.getItem("buyerToken");
     if (!token) {
@@ -86,7 +81,6 @@ export default function ProductList() {
     }
   }
 
-  // Buy now (single-product purchase)
   async function buyNow(productId) {
     const token = localStorage.getItem("buyerToken");
     if (!token) {
@@ -106,7 +100,6 @@ export default function ProductList() {
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.message || "Purchase failed");
       alert("Purchase successful");
-      // reload list to reflect stock changes
       load(page);
     } catch (e) {
       console.error("buyNow error:", e);
@@ -118,7 +111,7 @@ export default function ProductList() {
     const p = new URLSearchParams(location.search);
     if (n <= 1) p.delete("page");
     else p.set("page", n);
-    navigate(`?${p.toString()}`, { replace: false });
+    navigate(`?${p.toString()}`);
   }
 
   return (
@@ -140,18 +133,28 @@ export default function ProductList() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((p) => (
               <div key={p._id} className="border rounded shadow-sm p-3 bg-white">
-                <div className="h-40 w-full mb-3 bg-gray-100 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={p.image || "/placeholder.png"}
-                    alt={p.name}
-                    className="object-contain h-full w-full"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.png";
-                    }}
-                  />
-                </div>
 
-                <div className="font-medium text-sm">{p.name}</div>
+                {/*  PRODUCT CLICK → PRODUCT PAGE */}
+                <Link to={`/product/${p._id}`}>
+                  <div className="h-40 w-full mb-3 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition">
+                    <img
+                      src={p.image || "/placeholder.png"}
+                      alt={p.name}
+                      className="object-contain h-full w-full"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.png";
+                      }}
+                    />
+                  </div>
+                </Link>
+
+                {/* ALSO MAKE THE NAME CLICKABLE */}
+                <Link to={`/product/${p._id}`}>
+                  <div className="font-medium text-sm cursor-pointer hover:text-blue-600">
+                    {p.name}
+                  </div>
+                </Link>
+
                 <div className="text-gray-600">₹{p.price}</div>
                 <div className="text-xs text-gray-500">{(p.category || "").split(",").join(" • ")}</div>
                 <div className="text-xs text-gray-500">Seller: {p.sellerName || "Unknown"}</div>
@@ -174,7 +177,6 @@ export default function ProductList() {
             ))}
           </div>
 
-          {/* pagination */}
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-600">
               Page {page} of {pages}

@@ -9,7 +9,7 @@ const { adminRouter }=require("./routes/admin");
 const { productRouter } = require("./routes/product");
 
 app.use(express.json());
-
+app.use((req, res, next) => { console.log(new Date().toISOString(), req.method, req.originalUrl); next(); });
 //cors
 
 app.use(cors({
