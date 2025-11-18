@@ -23,6 +23,11 @@ import { SellerControlPanel } from "./seller/sellerPages/SellerControlPanel";
 import Cart from "./pages/Cart";
 import Home2 from "./pages/Home2";
 import ProductPage from "./components/ProductPage";
+import OrderSuccess from "./pages/OrderSuccess";
+import BuyerPurchases from "./pages/BuyerPurchases";
+import Checkout from "./pages/Checkout";
+
+
 
 
 
@@ -42,6 +47,10 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/home2" element={<Home2 />} />
         <Route path="/product/:id" element={<ProductPage />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/buyer/purchases" element={<BuyerPurchases />} />
+
        
 
 

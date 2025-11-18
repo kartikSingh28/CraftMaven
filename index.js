@@ -7,6 +7,7 @@ const { BuyerRouter }=require("./routes/buyer");
 const { sellerRouter }=require("./routes/seller");
 const { adminRouter }=require("./routes/admin");
 const { productRouter } = require("./routes/product");
+const PaymentRouter = require("./routes/payments");
 
 app.use(express.json());
 app.use((req, res, next) => { console.log(new Date().toISOString(), req.method, req.originalUrl); next(); });
@@ -21,6 +22,8 @@ app.use("/api/v1/buyer",BuyerRouter);
 app.use("/api/v1/seller",sellerRouter);
 app.use("/api/v1/admin",adminRouter);
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/payment", PaymentRouter);
+console.log("Mounted paymentRouter at /api/v1/payment");
 
 async function main(){
     try{
