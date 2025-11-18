@@ -15,7 +15,6 @@ export function NavBar() {
   const [searchQ, setSearchQ] = useState(initialQ);
   const [cartCount, setCartCount] = useState(0);
 
-  // close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -26,13 +25,11 @@ export function NavBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // keep search input in sync when URL changes (e.g., back/forward)
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     setSearchQ(p.get("q") || "");
   }, [location.search]);
 
-  // optional: fetch cart count if buyer token exists
   useEffect(() => {
     const token = localStorage.getItem("buyerToken");
     if (!token) return;
@@ -44,27 +41,25 @@ export function NavBar() {
         });
         if (!resp.ok) return;
         const data = await resp.json();
-        const count = Array.isArray(data.cart) ? data.cart.reduce((s, it) => s + (it.quantity || 0), 0) : 0;
+        const count = Array.isArray(data.cart)
+          ? data.cart.reduce((s, it) => s + (it.quantity || 0), 0)
+          : 0;
         setCartCount(count);
-      } catch (e) {
-        // ignore silently (not critical)
-      }
+      } catch (e) {}
     })();
   }, [location.pathname]);
 
-  // submit search -> navigate to home with query param
   function onSearchSubmit(e) {
     e.preventDefault();
     const p = new URLSearchParams(location.search);
     if (searchQ && searchQ.trim() !== "") p.set("q", searchQ.trim());
     else p.delete("q");
-    p.delete("page"); // reset pagination when searching
+    p.delete("page");
     navigate(`/?${p.toString()}`);
   }
 
   return (
     <nav className="fixed top-0 left-0 w-full flex justify-between items-center bg-[#F7F3EC] px-6 md:px-10 py-3 shadow-md z-50">
-      {/* Logo */}
       <Link to="/" className="flex items-center gap-3">
         <img src={logo} alt="CraftMaven Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
         <span className="text-lg md:text-2xl font-bold text-[#1B4D4A] tracking-wide">
@@ -72,7 +67,6 @@ export function NavBar() {
         </span>
       </Link>
 
-      {/* Search (wired) */}
       <form onSubmit={onSearchSubmit} className="flex-1 mx-4 md:mx-10 max-w-xl">
         <div className="relative">
           <input
@@ -92,9 +86,7 @@ export function NavBar() {
         </div>
       </form>
 
-      {/* Menu */}
       <div className="flex gap-4 md:gap-6 items-center text-[#1B4D4A] font-medium relative">
-        {/* Login dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             className="px-3 py-1 rounded hover:bg-[#C65A2E] hover:text-white transition"
@@ -106,8 +98,9 @@ export function NavBar() {
           {loginOpen && (
             <ul className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
               <li>
+                {/* ✅ ONLY CHANGE: redirect parameter added */}
                 <Link
-                  to="/signin"
+                  to="/signin?redirect=/home2"
                   className="block px-4 py-2 text-[#1B4D4A] hover:bg-[#C65A2E] hover:text-white transition"
                   onClick={() => setLoginOpen(false)}
                 >

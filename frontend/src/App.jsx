@@ -20,6 +20,8 @@ import {FeeType} from "./seller/sellerPages/FeeType";
 import {GrossMargin} from "./seller/sellerPages/GrossMargin";
 import {SellerSignup} from "./pages/SellerSignup";
 import { SellerControlPanel } from "./seller/sellerPages/SellerControlPanel";
+import Cart from "./pages/Cart";
+import Home2 from "./pages/Home2";
 
 import "./App.css"; 
 
@@ -34,6 +36,9 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/seller" element={<SellerDashBoard />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/home2" element={<Home2 />} />
+
 
         {/* Seller-specific FAQ page */}
         <Route path="/faqs" element={<SellerFaq />} />

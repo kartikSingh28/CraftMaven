@@ -1,5 +1,6 @@
 // routes/buyer.js
 const { Router } = require("express");
+const mongoose = require("mongoose");
 const { buyerModel, productModel, purchaseModel } = require("../db");
 const { cartModel } = require("../models/cart");
 const jwt = require("jsonwebtoken");
@@ -57,25 +58,64 @@ BuyerRouter.post("/signin", async (req, res) => {
 
   const { email, password } = parsed.data;
   try {
-    const user = await buyerModel.findOne({ email });
+    const user = await buyerModel.findOne({ email }).select("+password");
     if (!user) return res.status(403).json({ message: "User not found" });
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(403).json({ message: "Incorrect password" });
 
-    const token = jwt.sign({ id: user._id, role: "buyer" }, JWT_BUYER_PASSWORD, { expiresIn: "1h" });
-    return res.json({ message: "Signin successful", token });
+    // build payload and sign token
+    const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    const payload = { id: user._id.toString(), name, email: user.email };
+    const token = jwt.sign(payload, JWT_BUYER_PASSWORD, { expiresIn: "1h" });
+
+    return res.json({
+      message: "Signin successful",
+      token,
+      buyer: {
+        name: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+        email: user.email,
+        _id: user._id
+      }
+    });
   } catch (err) {
     console.error("Buyer signin error:", err);
     return res.status(500).json({ message: "Something went wrong" });
   }
 });
 
+
+
+BuyerRouter.get("/me", buyerMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await buyerModel.findById(userId).select("-password").lean();
+    if (!user) return res.status(404).json({ message: "Buyer not found" });
+
+    const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    return res.json({
+      message: "Current buyer fetched",
+      buyer: {
+        _id: user._id,
+        name,
+        email: user.email,
+        address: user.address || ""
+      }
+    });
+  } catch (err) {
+    console.error("Get /me error:", err);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+} );
 // Purchase a product (protected)
 BuyerRouter.post("/purchase", buyerMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
     const { productId, quantity = 1 } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid productId" });
+    }
 
     const product = await productModel.findById(productId);
     if (!product || !product.isActive) {
@@ -134,22 +174,38 @@ BuyerRouter.get("/profile", buyerMiddleware, async (req, res) => {
   }
 });
 
-// Cart: add item
+
 BuyerRouter.post("/cart/add", buyerMiddleware, async (req, res) => {
   try {
-    const { productId, quantity = 1 } = req.body;
     const buyerId = req.userId;
-    if (!productId) return res.status(400).json({ message: "product ID is required" });
+    const { productId, quantity = 1 } = req.body;
 
-    const existing = await cartModel.findOne({ buyerId, productId });
-    if (existing) {
-      existing.quantity += quantity;
-      await existing.save();
-      return res.json({ message: "Cart updated", item: existing });
+    if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Valid productId is required" });
+    }
+    const qty = parseInt(quantity, 10) || 1;
+    if (qty < 1) return res.status(400).json({ message: "Quantity must be >= 1" });
+
+    // Optional: verify product exists
+    if (productModel) {
+      const prodExists = await productModel.findById(productId).select("_id isActive stock");
+      if (!prodExists || !prodExists.isActive) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      // Optional stock guard: if you want to prevent adding more than stock
+      if (prodExists.stock < qty) {
+        return res.status(400).json({ message: "Requested quantity exceeds available stock" });
+      }
     }
 
-    const newItem = await cartModel.create({ buyerId, productId, quantity });
-    return res.status(201).json({ message: "Item added to the cart", item: newItem });
+    // Atomic increment if exists, otherwise create
+    const updated = await cartModel.findOneAndUpdate(
+      { buyerId, productId },
+      { $inc: { quantity: qty } },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    ).lean();
+
+    return res.status(200).json({ message: "Cart updated", item: updated });
   } catch (err) {
     console.error("Cart add error:", err);
     return res.status(500).json({ message: "Something went wrong" });
@@ -160,7 +216,16 @@ BuyerRouter.post("/cart/add", buyerMiddleware, async (req, res) => {
 BuyerRouter.get("/cart", buyerMiddleware, async (req, res) => {
   try {
     const buyerId = req.userId;
-    const items = await cartModel.find({ buyerId }).populate("productId", "name price image").lean();
+    // populate product fields needed by frontend (adjust select if you store seller differently)
+    const items = await cartModel
+      .find({ buyerId })
+      .populate({
+        path: "productId",
+        select: "name price image sellerName seller isActive",
+        populate: { path: "seller", select: "name" }, // if your Product references Seller
+      })
+      .lean();
+
     return res.json({ message: "Cart fetched", cart: items });
   } catch (err) {
     console.error("Get cart error:", err);
@@ -173,10 +238,43 @@ BuyerRouter.delete("/cart/:productId", buyerMiddleware, async (req, res) => {
   try {
     const buyerId = req.userId;
     const { productId } = req.params;
-    await cartModel.findOneAndDelete({ buyerId, productId });
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid productId" });
+    }
+
+    const removed = await cartModel.findOneAndDelete({ buyerId, productId });
+    if (!removed) return res.status(404).json({ message: "Item not found in cart" });
+
     return res.json({ message: "Item removed from cart" });
   } catch (err) {
     console.error("Cart delete error:", err);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+// Decrement quantity (optional)
+BuyerRouter.patch("/cart/:productId/decrement", buyerMiddleware, async (req, res) => {
+  try {
+    const buyerId = req.userId;
+    const { productId } = req.params;
+    const dec = parseInt(req.body.dec || 1, 10);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid productId" });
+    }
+    if (dec < 1) return res.status(400).json({ message: "dec must be >= 1" });
+
+    const item = await cartModel.findOne({ buyerId, productId });
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    item.quantity -= dec;
+    if (item.quantity <= 0) {
+      await item.remove();
+      return res.json({ message: "Item removed from cart" });
+    }
+    await item.save();
+    return res.json({ message: "Quantity updated", item });
+  } catch (err) {
+    console.error("Cart decrement error:", err);
     return res.status(500).json({ message: "Something went wrong" });
   }
 });

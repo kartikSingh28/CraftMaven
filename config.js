@@ -1,3 +1,4 @@
+require("dotenv").config();
 const JWT_ADMIN_PASSWORD=process.env.JWT_ADMIN_PASSWORD;
 const JWT_BUYER_PASSWORD=process.env.JWT_BUYER_PASSWORD;
 const JWT_SELLER_PASSWORD=process.env.JWT_SELLER_PASSWORD;

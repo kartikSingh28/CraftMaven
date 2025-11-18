@@ -1,24 +1,25 @@
-const jwt=require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
+const { JWT_BUYER_PASSWORD } = require("../config");
 
-const {JWT_BUYER_PASSWORD}=require("../config.js");
-
-function buyerMiddleware(req,res,next){
-    const token=req.headers.token;
-    if(!token){
-        return res.status(401).json({
-            message:"Authorization Denied"
-        });
+async function buyerMiddleware(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Authorization Denied: No Token" });
     }
 
-    try{
-        const decoded=jwt.verify(token,JWT_BUYER_PASSWORD);
-        req.userId=decoded.id;
-        next();
-    }catch(err){
-        return res.status(403).json({
-            message:"Invalid or expired token"
-        });
-    }
+    const token = authHeader.split(" ")[1];
 
+    const decoded = jwt.verify(token, JWT_BUYER_PASSWORD);
+
+    req.userId = decoded.id;
+    req.role = decoded.role;
+
+    next();
+  } catch (err) {
+    console.log("buyerMiddleware jwt verify error:", err.message);
+    return res.status(401).json({ message: "You need to Sign Up first" });
+  }
 }
-module.exports={buyerMiddleware};
+
+module.exports = { buyerMiddleware };
