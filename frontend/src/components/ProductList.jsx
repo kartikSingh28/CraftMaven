@@ -116,8 +116,9 @@ export default function ProductList() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="px-6 lg:px-8 py-10 max-w-7xl mx-auto">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-3xl font-extrabold text-[#164e47]">All Products</h2>
         <div className="text-sm text-gray-600">
           {loading ? "Loading..." : `Showing ${products.length} of ${total} products`}
         </div>
@@ -126,56 +127,71 @@ export default function ProductList() {
       {err && <div className="mb-4 text-red-600">{err}</div>}
 
       {loading ? (
-        <div>Loading products…</div>
+        <div className="text-center py-20 text-gray-500">Loading products…</div>
       ) : products.length === 0 ? (
-        <div>No products found.</div>
+        <div className="text-center py-20 text-gray-500">No products found.</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {products.map((p) => (
-              <div key={p._id} className="border rounded shadow-sm p-3 bg-white">
-                <Link to={`/product/${p._id}`}>
-                  <div className="h-40 w-full mb-3 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90 transition">
+              <article key={p._id} className="group">
+                <div className="product-card bg-white rounded-2xl overflow-hidden shadow-lg transform transition duration-300 ease-out hover:-translate-y-2">
+                  <Link to={`/product/${p._id}`} className="block product-image h-64 md:h-56 lg:h-60 overflow-hidden">
                     <img
                       src={p.image || "/placeholder.png"}
                       alt={p.name}
-                      className="object-contain h-full w-full"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder.png";
                       }}
                     />
+                  </Link>
+
+                  <div className="product-body p-5 flex flex-col">
+                    <Link to={`/product/${p._id}`}>
+                      <h3 className="product-title text-center text-lg font-semibold text-gray-800 mb-1">
+                        {p.name}
+                      </h3>
+                    </Link>
+
+                    <p className="product-price text-center text-orange-600 font-bold mt-1">₹{p.price}</p>
+
+                    <div className="mt-2 text-center text-xs text-gray-500">
+                      {(p.category || "").split(",").join(" • ")}
+                    </div>
+                    <div className="text-center text-xs text-gray-400">Seller: {p.sellerName || "Unknown"}</div>
+
+                    <div className="mt-4 flex items-center justify-center gap-3">
+                         <button
+  onClick={() => addToCart(p._id)}
+  className="px-4 py-1.5 rounded-lg font-semibold text-white 
+  bg-[#C75A2A]
+  shadow-[0_3px_10px_rgba(199,90,42,0.25)]
+  transition-all duration-200"
+>
+  Add to cart
+</button>
+
+
+<button
+  onClick={() => buyNow(p._id)}
+  className="px-4 py-1.5 rounded-lg font-semibold text-white 
+  bg-[#164E47]
+  shadow-[0_3px_10px_rgba(22,78,71,0.25)]
+  transition-all duration-200"
+>
+  Buy now
+</button>
+
+
+                    </div>
                   </div>
-                </Link>
-
-                <Link to={`/product/${p._id}`}>
-                  <div className="font-medium text-sm cursor-pointer hover:text-blue-600">
-                    {p.name}
-                  </div>
-                </Link>
-
-                <div className="text-gray-600">₹{p.price}</div>
-                <div className="text-xs text-gray-500">{(p.category || "").split(",").join(" • ")}</div>
-                <div className="text-xs text-gray-500">Seller: {p.sellerName || "Unknown"}</div>
-
-                <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={() => addToCart(p._id)}
-                    className="flex-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  >
-                    Add to cart
-                  </button>
-                  <button
-                    onClick={() => buyNow(p._id)}
-                    className="px-3 py-1 border rounded hover:bg-gray-100"
-                  >
-                    Buy now
-                  </button>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-8 flex items-center justify-between">
             <div className="text-sm text-gray-600">
               Page {page} of {pages}
             </div>

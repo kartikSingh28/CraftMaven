@@ -17,8 +17,7 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
 }));
-console.log("RAW APP_ID:", JSON.stringify(process.env.CASHFREE_APP_ID));
-console.log("RAW SECRET:", JSON.stringify(process.env.CASHFREE_SECRET_KEY));
+
 
 app.use("/api/v1/buyer",BuyerRouter);
 app.use("/api/v1/seller",sellerRouter);

@@ -1,5 +1,6 @@
 // src/pages/Cart.jsx
 import React, { useEffect, useState } from "react";
+import {Footer} from "../components/Footer";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -105,7 +106,6 @@ export default function Cart() {
 
   // Calculate totals
   const subtotal = items.reduce((sum, it) => {
-    // some cart items structure: { _id, buyerId, productId: { _id, name, price, image }, quantity }
     const price = it.productId?.price ?? 0;
     const qty = it.quantity ?? 0;
     return sum + price * qty;
@@ -116,102 +116,141 @@ export default function Cart() {
       alert("Cart is empty");
       return;
     }
- 
+
     navigate("/checkout", { state: { items } });
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 mt-24">
-      <h1 className="text-2xl font-bold text-[#1B4D4A] mb-6">Your Cart</h1>
+    <div className="min-h-screen bg-[#F7F3EC] pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-6">
+        <h1 className="text-3xl font-extrabold text-[#164E47] mb-8">Your Cart</h1>
 
-      {loading ? (
-        <div>Loading cart...</div>
-      ) : err ? (
-        <div className="text-red-600">{err}</div>
-      ) : items.length === 0 ? (
-        <div className="text-gray-600">Your cart is empty.</div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Items column */}
-          <div className="lg:col-span-2 space-y-4">
-            {items.map((it) => {
-              const product = it.productId || {};
-              const productId = product._id || it.productId; // fallback
-              return (
-                <div key={it._id} className="flex gap-4 bg-white p-4 rounded shadow-sm items-center">
-                  <img
-                    src={product.image || "/placeholder.png"}
-                    alt={product.name}
-                    className="w-28 h-28 object-cover rounded"
-                    onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-                  />
-                  <div className="flex-1">
-                    <div className="font-semibold text-lg">{product.name}</div>
-                    <div className="text-sm text-gray-500">Seller: {product.sellerName || "Unknown"}</div>
-                    <div className="text-sm text-gray-700 mt-1">₹{product.price}</div>
+        {loading ? (
+          <div className="text-gray-600">Loading cart...</div>
+        ) : err ? (
+          <div className="text-red-600">{err}</div>
+        ) : items.length === 0 ? (
+          <div className="text-gray-600">Your cart is empty.</div>
+        ) : (
+          <>
+            {/* Items list — full width card */}
+            <div className="bg-white rounded-2xl shadow-md p-6 space-y-6">
+              {items.map((it) => {
+                const product = it.productId || {};
+                const productId = product._id || it.productId; // fallback
+                return (
+                  <div
+                    key={it._id}
+                    className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 bg-white rounded-lg p-4 transition-shadow hover:shadow-lg"
+                  >
+                    {/* image */}
+                    <div className="w-full md:w-36 flex-shrink-0">
+                      <div className="w-28 h-28 md:w-32 md:h-32 rounded-lg overflow-hidden bg-gray-50 border">
+                        <img
+                          src={product.image || "/placeholder.png"}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                        />
+                      </div>
+                    </div>
 
-                    <div className="mt-3 flex items-center gap-2">
-                      <button
-                        onClick={() => decreaseQty(productId)}
-                        disabled={actionLoading}
-                        className="px-3 py-1 border rounded"
-                      >
-                        -
-                      </button>
-                      <div className="px-3 py-1 border rounded">{it.quantity}</div>
-                      <button
-                        onClick={() => increaseQty(productId)}
-                        disabled={actionLoading}
-                        className="px-3 py-1 border rounded"
-                      >
-                        +
-                      </button>
+                    {/* details */}
+                    <div className="flex-1 w-full">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="text-lg font-semibold text-[#164E47]">
+                            {product.name}
+                          </div>
 
-                      <button
-                        onClick={() => removeItem(productId)}
-                        className="ml-4 text-sm text-red-600 hover:underline"
-                        disabled={actionLoading}
-                      >
-                        Remove
-                      </button>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="text-sm text-gray-500">Qty: {it.quantity}</span>
+                            <span className="inline-block text-xs px-2 py-1 rounded-full bg-[#F5F0EA] text-[#C75A2A] font-medium">
+                              Seller: {product.sellerName || "Unknown"}
+                            </span>
+                          </div>
+
+                          <div className="text-sm text-gray-400 mt-2">
+                            {(product.category || "").split(",").slice(0, 2).join(" • ")}
+                          </div>
+                        </div>
+
+                        <div className="text-right ml-4">
+                          <div className="text-xl font-bold text-[#C75A2A]">
+                            ₹{(product.price * it.quantity).toFixed(2)}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">Incl. taxes</div>
+                        </div>
+                      </div>
+
+                      {/* quantity controls */}
+                      <div className="mt-4 flex items-center gap-3">
+                        <button
+                          onClick={() => decreaseQty(productId)}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center w-10 h-10 rounded-md border border-gray-200 bg-white text-lg text-gray-700 hover:shadow-sm transition disabled:opacity-50"
+                        >
+                          −
+                        </button>
+
+                        <div className="px-4 py-1.5 border rounded-md text-sm font-medium">
+                          {it.quantity}
+                        </div>
+
+                        <button
+                          onClick={() => increaseQty(productId)}
+                          disabled={actionLoading}
+                          className="inline-flex items-center justify-center w-10 h-10 rounded-md border border-gray-200 bg-white text-lg text-gray-700 hover:shadow-sm transition disabled:opacity-50"
+                        >
+                          +
+                        </button>
+
+                        <button
+                          onClick={() => removeItem(productId)}
+                          className="ml-4 text-sm text-red-600 hover:underline"
+                          disabled={actionLoading}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
 
-                  <div className="text-right">
-                    <div className="font-semibold">₹{(product.price * it.quantity).toFixed(2)}</div>
+            {/* Order summary — BELOW items and centered */}
+            <div className="mt-8 flex justify-center">
+              <div className="max-w-md w-full">
+                <div className="bg-white rounded-2xl shadow-xl p-6 border">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-sm text-gray-500">Items</div>
+                    <div className="font-medium text-gray-700">{items.length}</div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="text-lg font-semibold text-[#164E47]">Subtotal</div>
+                    <div className="text-lg font-semibold text-[#C75A2A]">₹{subtotal.toFixed(2)}</div>
+                  </div>
+
+                  <button
+                    onClick={proceedToCheckout}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold 
+                               bg-[#164E47] text-white hover:bg-[#0F3A35] transition disabled:opacity-50"
+                  >
+                    Proceed to Checkout
+                  </button>
+
+                  <div className="mt-3 text-xs text-gray-400 text-center">
+                    Secure payments powered by Cashfree
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Order summary */}
-          <div className="bg-white p-6 rounded shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-            <div className="flex justify-between text-sm text-gray-600">
-              <div>Items</div>
-              <div>{items.length}</div>
+              </div>
             </div>
-            <div className="flex justify-between text-sm text-gray-600 mt-1">
-              <div>Subtotal</div>
-              <div>₹{subtotal.toFixed(2)}</div>
-            </div>
-
-            <div className="mt-4">
-              <button
-                onClick={proceedToCheckout}
-                className="w-full bg-[#1B4D4A] text-white py-2 rounded shadow hover:bg-[#153c3a]"
-              >
-                Proceed to Checkout
-              </button>
-            </div>
-
-            <div className="mt-3 text-xs text-gray-500">
-              You will be redirected to the payment page after checkout.
-            </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
+      <Footer />
     </div>
   );
 }
