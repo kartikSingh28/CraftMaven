@@ -7,7 +7,7 @@ const { BuyerRouter }=require("./routes/buyer");
 const { sellerRouter }=require("./routes/seller");
 const { adminRouter }=require("./routes/admin");
 const { productRouter } = require("./routes/product");
-const PaymentRouter = require("./routes/payments");
+const PaymentRouter = require("./routes/payments"); 
 
 app.use(express.json());
 app.use((req, res, next) => { console.log(new Date().toISOString(), req.method, req.originalUrl); next(); });
@@ -17,6 +17,8 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
 }));
+console.log("RAW APP_ID:", JSON.stringify(process.env.CASHFREE_APP_ID));
+console.log("RAW SECRET:", JSON.stringify(process.env.CASHFREE_SECRET_KEY));
 
 app.use("/api/v1/buyer",BuyerRouter);
 app.use("/api/v1/seller",sellerRouter);

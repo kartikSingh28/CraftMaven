@@ -11,10 +11,11 @@ PaymentRouter.use((req, res, next) => {
   next();
 });
 
-
-const APP_ID = process.env.CASHFREE_APP_ID;
-const SECRET = process.env.CASHFREE_SECRET_KEY;
+// safe env reading
+const APP_ID = (process.env.CASHFREE_APP_ID || "").trim();
+const SECRET = (process.env.CASHFREE_SECRET_KEY || "").trim();
 const ENV = (process.env.CASHFREE_ENV || "sandbox").toLowerCase();
+const CF_API_VERSION = (process.env.CASHFREE_API_VERSION || "2025-01-01").trim();
 
 const CF_BASE =
   ENV === "production"
@@ -22,30 +23,79 @@ const CF_BASE =
     : "https://sandbox.cashfree.com/pg";
 
 if (!APP_ID || !SECRET) {
-  console.warn("Missing Cashfree keys — set CASHFREE_APP_ID & CASHFREE_SECRET_KEY in .env");
+  console.warn("Missing Cashfree keys — set CASHFREE_APP_ID & CASHFREE_SECRET_KEY in env");
 }
 
-// helper: create order on Cashfree
+// helper: create order on Cashfree (robust)
 async function cfCreateOrder(body) {
   const url = `${CF_BASE}/orders`;
   const headers = {
     "Content-Type": "application/json",
     "x-client-id": APP_ID,
     "x-client-secret": SECRET,
+    "x-api-version": CF_API_VERSION,
   };
-  const resp = await axios.post(url, body, { headers });
-  return resp.data;
+
+  console.log("[cfCreateOrder] POST", url);
+  console.log("[cfCreateOrder] header presence:", !!APP_ID, !!SECRET, "api_version:", CF_API_VERSION);
+  console.log("[cfCreateOrder] body:", body);
+
+  try {
+    const resp = await axios.post(url, body, { headers, timeout: 15000 });
+    console.log("[cfCreateOrder] status:", resp.status, "data:", resp.data);
+    return resp.data;
+  } catch (err) {
+    console.error("[cfCreateOrder] axios error:", err.message);
+    if (err.response) {
+      console.error("[cfCreateOrder] response.status:", err.response.status);
+      console.error("[cfCreateOrder] response.data:", JSON.stringify(err.response.data, null, 2));
+      const e = new Error("Cashfree API error");
+      e.status = err.response.status;
+      e.data = err.response.data;
+      throw e;
+    } else if (err.request) {
+      console.error("[cfCreateOrder] no response (request made)", err.request);
+      const e = new Error("Cashfree no response");
+      e.data = { message: "No response from Cashfree (network/timeout?)" };
+      throw e;
+    } else {
+      throw err;
+    }
+  }
 }
 
-// helper: get order details
+// helper: get order details (robust)
 async function cfGetOrder(orderId) {
   const url = `${CF_BASE}/orders/${encodeURIComponent(orderId)}`;
   const headers = {
     "x-client-id": APP_ID,
     "x-client-secret": SECRET,
+    "x-api-version": CF_API_VERSION,
   };
-  const resp = await axios.get(url, { headers });
-  return resp.data;
+  console.log("[cfGetOrder] GET", url);
+
+  try {
+    const resp = await axios.get(url, { headers, timeout: 15000 });
+    console.log("[cfGetOrder] status:", resp.status, "data:", resp.data);
+    return resp.data;
+  } catch (err) {
+    console.error("[cfGetOrder] axios error:", err.message);
+    if (err.response) {
+      console.error("[cfGetOrder] response.status:", err.response.status);
+      console.error("[cfGetOrder] response.data:", JSON.stringify(err.response.data, null, 2));
+      const e = new Error("Cashfree API error");
+      e.status = err.response.status;
+      e.data = err.response.data;
+      throw e;
+    } else if (err.request) {
+      console.error("[cfGetOrder] no response (request made)", err.request);
+      const e = new Error("Cashfree no response");
+      e.data = { message: "No response from Cashfree (network/timeout?)" };
+      throw e;
+    } else {
+      throw err;
+    }
+  }
 }
 
 /**
@@ -56,6 +106,28 @@ async function cfGetOrder(orderId) {
 PaymentRouter.post("/create-order", buyerMiddleware, async (req, res) => {
   try {
     const buyerId = req.userId;
+    console.log("[create-order] buyerId:", buyerId, "userEmail:", req.userEmail, "userPhone:", req.userPhone);
+
+    // Load buyer details from DB (to fetch phone/email if not present in JWT)
+    let buyer = null;
+    try {
+      buyer = await buyerModel.findById(buyerId).lean();
+    } catch (dbErr) {
+      console.warn("[create-order] could not load buyer from DB:", dbErr && (dbErr.message || dbErr));
+    }
+
+    // Resolve customer email / phone (prefer req values, then DB, else fallback)
+    const customerEmail = (req.userEmail || buyer?.email || "").toString().trim();
+    let customerPhoneRaw = (req.userPhone || buyer?.phone || "").toString().trim();
+
+    // Basic normalization: keep only digits, ensure at least 10 digits
+    const digits = (customerPhoneRaw.match(/\d/g) || []).join("");
+    let customerPhone = digits;
+    if (!customerPhone || customerPhone.length < 8) {
+      // fallback to a safe test phone for sandbox — log a warning so you can require phone later
+      customerPhone = process.env.DEBUG_FALLBACK_PHONE || "9999999999";
+      console.warn(`[create-order] buyer phone missing or invalid for buyer ${buyerId}. Using fallback phone: ${customerPhone}`);
+    }
 
     // compute total securely from cart
     const items = await cartModel.find({ buyerId }).populate("productId").lean();
@@ -78,29 +150,32 @@ PaymentRouter.post("/create-order", buyerMiddleware, async (req, res) => {
 
     const orderBody = {
       order_id: orderId,
-      order_amount: Number(totalINR).toFixed(2),
+      order_amount: Number(totalINR).toFixed(2), // "2499.00"
       order_currency: "INR",
       customer_details: {
         customer_id: String(buyerId),
-        customer_email: req.userEmail || "", // optional if your middleware provides
-        customer_phone: req.userPhone || "",
+        customer_email: customerEmail || "test@example.com",
+        customer_phone: customerPhone,
       },
       // optional: return_url or notify_url if you want redirect/webhook flows
     };
 
     const cfResp = await cfCreateOrder(orderBody);
-    // cfResp structure typically: { status: "OK", message: "...", data: { order_id, payment_session_id, ... } }
     const data = cfResp?.data || cfResp;
 
     return res.json({
       message: "Order created",
       orderId,
       cashfree: data,
-      appId: APP_ID,
+      appId: APP_ID ? "present" : "missing",
     });
   } catch (err) {
-    console.error("create-order error:", err?.response?.data || err?.message || err);
-    return res.status(500).json({ message: "Failed to create order" });
+    // prefer structured e.data from our cf helpers
+    console.error("create-order error:", err && (err.data || err.message || err));
+    if (err.data) {
+      return res.status(err.status || 500).json({ message: "Cashfree error", cfError: err.data });
+    }
+    return res.status(500).json({ message: "Failed to create order", error: err.message || err });
   }
 });
 
@@ -118,12 +193,9 @@ PaymentRouter.post("/verify", buyerMiddleware, async (req, res) => {
     const cfOrderResp = await cfGetOrder(orderId);
     const cfData = cfOrderResp?.data || cfOrderResp;
 
-    // Inspect payments or order_status
-    // Different Cashfree versions return different fields; we attempt common ones:
     const payments = cfData?.payments || [];
     const orderStatus = (cfData?.order_status || cfData?.orderStatus || "").toString().toUpperCase();
 
-    // consider success if any payment has status SUCCESS or order_status === 'PAID'
     const successfulPayment = (payments || []).find(
       (p) =>
         (p.payment_status || p.status || "").toString().toUpperCase() === "SUCCESS" ||
@@ -152,7 +224,7 @@ PaymentRouter.post("/verify", buyerMiddleware, async (req, res) => {
         productId: product._id,
         quantity: qty,
         totalPrice,
-        status: "pending", // you can mark 'paid' if you prefer
+        status: "pending",
         purchaseDate: new Date()
       });
 
@@ -172,10 +244,12 @@ PaymentRouter.post("/verify", buyerMiddleware, async (req, res) => {
 
     return res.json({ message: "Payment verified and purchases recorded", purchases: createdPurchases, cfData });
   } catch (err) {
-    console.error("verify error:", err?.response?.data || err?.message || err);
-    return res.status(500).json({ message: "Payment verification failed" });
+    console.error("verify error:", err && (err.data || err.message || err));
+    if (err.data) {
+      return res.status(err.status || 500).json({ message: "Cashfree error", cfError: err.data });
+    }
+    return res.status(500).json({ message: "Payment verification failed", error: err.message || err });
   }
 });
 
 module.exports = PaymentRouter;
-
